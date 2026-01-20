@@ -34,6 +34,7 @@ jobs:
             -var="yc_token=${{ secrets.YC_TOKEN }}" \
             -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
             -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
+            -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
             -no-color
 
       - name: Terraform Apply
@@ -42,4 +43,5 @@ jobs:
             -var="yc_token=${{ secrets.YC_TOKEN }}" \
             -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
             -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
+            -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
             -auto-approve

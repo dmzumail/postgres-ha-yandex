@@ -90,7 +90,7 @@ resource "yandex_compute_instance" "pg" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    ssh-keys = "ubuntu:${var.ssh_pub_key}"
   }
 
   scheduling_policy {
