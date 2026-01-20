@@ -1,5 +1,10 @@
-variable "yc_token" {
-  description = "OAuth или IAM токен Yandex Cloud"
+variable "yc_access_key_id" {
+  description = "ID ключа доступа сервисного аккаунта"
+  type        = string
+}
+
+variable "yc_secret_access_key" {
+  description = "Секретный ключ сервисного аккаунта"
   type        = string
 }
 
