@@ -1,0 +1,40 @@
+scope: pg-cluster
+namespace: /service/
+name: {{ inventory_hostname }}
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:8008
+
+etcd:
+  hosts: "{{ groups['postgres_ha'] | map('extract', hostvars, 'ansible_host') | list | join(',')}}:2379"
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      parameters:
+        wal_level: replica
+        hot_standby: "on"
+        max_wal_senders: 10
+        wal_keep_size: 128MB
+        max_replication_slots: 10
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:5432
+  data_dir: /var/lib/postgresql/15/main
+  bin_dir: /usr/lib/postgresql/15/bin
+  authentication:
+    replication:
+      username: replicator
+      password: rep-pass-123
+    superuser:
+      username: postgres
+      password: postgres-pass-123
+  parameters:
+    unix_socket_directories: '/var/run/postgresql'

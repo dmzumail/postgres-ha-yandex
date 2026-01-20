@@ -1,0 +1,8 @@
+---
+- name: Настройка PostgreSQL HA кластера
+  hosts: postgres_ha
+  become: yes
+  roles:
+    - common
+    - postgresql
+    - patroni

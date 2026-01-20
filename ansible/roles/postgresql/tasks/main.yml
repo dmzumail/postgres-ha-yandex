@@ -1,0 +1,36 @@
+---
+- name: Добавить репозиторий PostgreSQL
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+
+- name: Импортировать ключ репозитория
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Установить PostgreSQL 15
+  apt:
+    name:
+      - postgresql-15
+      - postgresql-client-15
+      - postgresql-contrib-15
+    state: present
+
+- name: Разрешить подключения по паролю
+  lineinfile:
+    path: /etc/postgresql/15/main/pg_hba.conf
+    line: "host all all 0.0.0.0/0 md5"
+    insertafter: EOF
+
+- name: Разрешить внешние подключения
+  lineinfile:
+    path: /etc/postgresql/15/main/postgresql.conf
+    regexp: '^#?listen_addresses'
+    line: "listen_addresses = '*'"
+
+- name: Перезапустить PostgreSQL
+  systemd:
+    name: postgresql@15-main
+    state: restarted
+    enabled: yes

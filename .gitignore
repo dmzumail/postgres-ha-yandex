@@ -1,0 +1,16 @@
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+
+# Ansible
+ansible/inventory/*.yml
+ansible/inventory/*.yaml
+!ansible/inventory/example.yml
+
+# Local
+*.log
+*~
+.DS_Store
+Thumbs.db

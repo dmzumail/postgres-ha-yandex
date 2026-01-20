@@ -1,0 +1,44 @@
+---
+- name: Установить Patroni и зависимости
+  pip:
+    name:
+      - "patroni[etcd]"
+      - psycopg2-binary
+    state: present
+
+- name: Создать пользователя patroni
+  user:
+    name: patroni
+    system: yes
+    shell: /bin/false
+
+- name: Создать каталог конфигурации
+  file:
+    path: /etc/patroni
+    state: directory
+    owner: patroni
+    group: patroni
+    mode: '0750'
+
+- name: Скопировать конфиг Patroni
+  template:
+    src: patroni.yml.j2
+    dest: /etc/patroni/patroni.yml
+    owner: patroni
+    group: patroni
+    mode: '0640'
+
+- name: Скопировать systemd unit
+  copy:
+    src: patroni.service
+    dest: /etc/systemd/system/patroni.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Запустить Patroni
+  systemd:
+    daemon_reload: yes
+    name: patroni
+    enabled: yes
+    state: started

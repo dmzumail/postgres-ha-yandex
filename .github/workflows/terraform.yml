@@ -1,0 +1,45 @@
+name: Deploy PostgreSQL HA Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'terraform/**'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13.4"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var="yc_token=${{ secrets.YC_TOKEN }}" \
+            -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
+            -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
+            -no-color
+
+      - name: Terraform Apply
+        run: |
+          terraform apply \
+            -var="yc_token=${{ secrets.YC_TOKEN }}" \
+            -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
+            -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
+            -auto-approve

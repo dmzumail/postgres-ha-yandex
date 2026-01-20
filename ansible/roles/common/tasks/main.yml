@@ -1,0 +1,26 @@
+---
+- name: Обновить кэш пакетов
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Установить базовые пакеты
+  apt:
+    name:
+      - curl
+      - wget
+      - vim
+      - git
+      - python3
+      - python3-pip
+    state: present
+
+- name: Отключить swap
+  shell: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Убедиться, что swap отключён навсегда
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^\s*[^#].*swap'
+    state: absent

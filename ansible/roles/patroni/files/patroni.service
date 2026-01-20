@@ -1,0 +1,16 @@
+[Unit]
+Description=High-availability PostgreSQL cluster
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=patroni
+Group=patroni
+ExecStart=/usr/local/bin/patroni /etc/patroni/patroni.yml
+KillMode=process
+TimeoutSec=30
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
