@@ -98,6 +98,8 @@ resource "yandex_compute_instance" "pg" {
   }
 }
 
-#resource "yandex_storage_bucket" "pg-backups" {
-#  bucket = "pg-backups-${var.yc_folder_id}"
-#}
+# Бакет для бэкапов — использует AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY из env
+resource "yandex_storage_bucket" "pg_backups" {
+  bucket    = "pg-backups-${var.yc_folder_id}"
+  folder_id = var.yc_folder_id
+}

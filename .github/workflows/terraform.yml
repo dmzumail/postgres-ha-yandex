@@ -36,6 +36,9 @@ jobs:
             -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
             -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
             -no-color
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
 
       - name: Terraform Apply
         run: |
@@ -45,3 +48,6 @@ jobs:
             -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
             -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
             -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}

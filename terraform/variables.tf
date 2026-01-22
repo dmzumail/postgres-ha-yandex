@@ -1,5 +1,5 @@
 variable "yc_token" {
-  description = "OAuth-токен или IAM-токен для доступа к Yandex Cloud"
+  description = "IAM-токен пользователя для управления ВМ"
   type        = string
 }
 
@@ -14,6 +14,6 @@ variable "yc_folder_id" {
 }
 
 variable "ssh_pub_key" {
-  description = "Публичный SSH-ключ для доступа к ВМ"
+  description = "Публичный SSH-ключ"
   type        = string
 }
