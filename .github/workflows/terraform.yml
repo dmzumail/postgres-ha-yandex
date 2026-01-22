@@ -31,8 +31,7 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform plan \
-            -var="yc_access_key_id=${{ secrets.YC_ACCESS_KEY_ID }}" \
-            -var="yc_secret_access_key=${{ secrets.YC_SECRET_ACCESS_KEY }}" \
+            -var="yc_token=${{ secrets.YC_TOKEN }}" \
             -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
             -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
             -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
@@ -41,8 +40,7 @@ jobs:
       - name: Terraform Apply
         run: |
           terraform apply \
-            -var="yc_access_key_id=${{ secrets.YC_ACCESS_KEY_ID }}" \
-            -var="yc_secret_access_key=${{ secrets.YC_SECRET_ACCESS_KEY }}" \
+            -var="yc_token=${{ secrets.YC_TOKEN }}" \
             -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
             -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
             -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \

@@ -8,11 +8,10 @@ terraform {
 }
 
 provider "yandex" {
-  access_key = var.yc_access_key_id
-  secret_key = var.yc_secret_access_key
-  cloud_id   = var.yc_cloud_id
-  folder_id  = var.yc_folder_id
-  zone       = "ru-central1-a"
+  token     = var.yc_token
+  cloud_id  = var.yc_cloud_id
+  folder_id = var.yc_folder_id
+  zone      = "ru-central1-a"
 }
 
 data "yandex_compute_image" "ubuntu_2204" {
