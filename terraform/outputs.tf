@@ -5,6 +5,6 @@ output "instance_ips" {
   }
 }
 
-output "bucket_name" {
-  value = yandex_storage_bucket.pg-backups.bucket
-}
+#output "bucket_name" {
+#  value = yandex_storage_bucket.pg-backups.bucket
+#}

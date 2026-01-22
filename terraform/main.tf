@@ -98,6 +98,6 @@ resource "yandex_compute_instance" "pg" {
   }
 }
 
-resource "yandex_storage_bucket" "pg-backups" {
-  bucket = "pg-backups-${var.yc_folder_id}"
-}
+#resource "yandex_storage_bucket" "pg-backups" {
+#  bucket = "pg-backups-${var.yc_folder_id}"
+#}
