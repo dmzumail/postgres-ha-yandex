@@ -9,6 +9,7 @@ terraform/.terraform.lock.hcl
 ansible/inventory/*.yml
 ansible/inventory/*.yaml
 !ansible/inventory/example.yml
+!ansible/inventory/hosts.yml 
 
 # Local
 *.log
