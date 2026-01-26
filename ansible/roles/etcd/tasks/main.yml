@@ -9,13 +9,15 @@
   unarchive:
     src: /tmp/etcd.tar.gz
     dest: /tmp
-    remote_src: no
+    remote_src: yes
+    creates: /tmp/etcd-v3.5.12-linux-amd64
 
 - name: Установить бинарники etcd
   copy:
     src: "/tmp/etcd-v3.5.12-linux-amd64/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: '0755'
+    remote_src: yes   # ← тоже важно!
   loop:
     - etcd
     - etcdctl
