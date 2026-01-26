@@ -1,0 +1,2 @@
+postgresql_superuser_password: "postgres-pass-123"
+postgresql_replication_password: "rep-pass-123"
