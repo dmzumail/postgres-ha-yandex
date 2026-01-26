@@ -1,0 +1,9 @@
+name: "{{ ansible_host }}"
+data-dir: /var/lib/etcd
+initial-cluster: {% for host in groups['postgres_ha'] %}{{ hostvars[host]['ansible_host'] }}=http://{{ hostvars[host]['ansible_host'] }}:2380{% if not loop.last %},{% endif %}{% endfor %}
+initial-advertise-peer-urls: http://{{ ansible_host }}:2380
+listen-peer-urls: http://0.0.0.0:2380
+listen-client-urls: http://0.0.0.0:2379
+advertise-client-urls: http://{{ ansible_host }}:2379
+initial-cluster-token: pg-etcd-token
+initial-cluster-state: new

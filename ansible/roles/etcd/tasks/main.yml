@@ -1,0 +1,61 @@
+---
+- name: Скачать etcd
+  get_url:
+    url: https://github.com/etcd-io/etcd/releases/download/v3.5.12/etcd-v3.5.12-linux-amd64.tar.gz
+    dest: /tmp/etcd.tar.gz
+    mode: '0644'
+
+- name: Распаковать etcd
+  unarchive:
+    src: /tmp/etcd.tar.gz
+    dest: /tmp
+    remote_src: no
+
+- name: Установить бинарники etcd
+  copy:
+    src: "/tmp/etcd-v3.5.12-linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: '0755'
+  loop:
+    - etcd
+    - etcdctl
+
+- name: Создать пользователя etcd
+  user:
+    name: etcd
+    system: yes
+    shell: /sbin/nologin
+
+- name: Создать каталоги
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: '0700'
+  loop:
+    - /var/lib/etcd
+    - /etc/etcd
+
+- name: Скопировать конфиг etcd
+  template:
+    src: etcd.conf.yml.j2
+    dest: /etc/etcd/etcd.conf.yml
+    owner: etcd
+    group: etcd
+    mode: '0644'
+
+- name: Скопировать systemd unit
+  copy:
+    src: etcd.service
+    dest: /etc/systemd/system/etcd.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Перезагрузить systemd и запустить etcd
+  systemd:
+    daemon_reload: yes
+    name: etcd
+    enabled: yes
+    state: started
