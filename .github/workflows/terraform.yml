@@ -1,17 +1,12 @@
-name: Deploy PostgreSQL HA Infrastructure
+name: Deploy PostgreSQL HA Cluster
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'terraform/**'
 
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: terraform
 
     steps:
       - name: Checkout
@@ -20,34 +15,48 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.13.4"
+          terraform_version: 1.6.0
+
+      - name: Set up environment variables
+        run: |
+          echo "YC_TOKEN=${{ secrets.YC_TOKEN }}" >> $GITHUB_ENV
+          echo "YC_CLOUD_ID=${{ secrets.YC_CLOUD_ID }}" >> $GITHUB_ENV
+          echo "YC_FOLDER_ID=${{ secrets.YC_FOLDER_ID }}" >> $GITHUB_ENV
+          echo "SSH_PUB_KEY=${{ secrets.SSH_PUB_KEY }}" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: |
-          terraform plan \
-            -var="yc_token=${{ secrets.YC_TOKEN }}" \
-            -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
-            -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
-            -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
-            -no-color
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+        working-directory: ./terraform
 
       - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
+
+      # Автоматическая генерация инвентаря
+      - name: Generate inventory from Terraform
         run: |
-          terraform apply \
-            -var="yc_token=${{ secrets.YC_TOKEN }}" \
-            -var="yc_cloud_id=${{ secrets.YC_CLOUD_ID }}" \
-            -var="yc_folder_id=${{ secrets.YC_FOLDER_ID }}" \
-            -var="ssh_pub_key=${{ secrets.SSH_PUB_KEY }}" \
-            -auto-approve
+          chmod +x ansible/generate_inventory.sh
+          ./ansible/generate_inventory.sh
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Ansible and jq
+        run: pip install ansible-core && sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Run Ansible playbook
+        run: |
+          ansible-playbook \
+            -i ansible/inventory/hosts.yml \
+            ansible/site.yml \
+            --vault-password-file=<(echo $ANSIBLE_VAULT_PASSWORD)
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}

@@ -98,8 +98,14 @@ resource "yandex_compute_instance" "pg" {
   }
 }
 
-# Бакет для бэкапов — использует AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY из env
 resource "yandex_storage_bucket" "pg_backups" {
   bucket    = "pg-backups-${var.yc_folder_id}"
   folder_id = var.yc_folder_id
+}
+
+output "instance_ips" {
+  value = {
+    for i, instance in yandex_compute_instance.pg :
+    "pg-node-${i + 1}" => instance.network_interface.0.nat_ip_address
+  }
 }

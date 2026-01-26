@@ -3,13 +3,17 @@ set -e
 
 cd "$(dirname "$0")/../terraform"
 
-# Генерируем inventory из terraform output
 terraform output -json instance_ips | jq -r '
 {
   all: {
     children: {
       postgres_ha: {
-        hosts: (to_entries | map({ (.key): { ansible_host: .value } }) | add)
+        hosts: (to_entries | map({
+          (.key): {
+            ansible_host: .value,
+            etcd_name: (.key | sub("pg-node-"; "node"))
+          }
+        }) | add)
       }
     },
     vars: {
