@@ -30,10 +30,8 @@ jobs:
           TF_VAR_yc_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_yc_folder_id: ${{ secrets.YC_FOLDER_ID }}
 
-      # Автоматическая генерация инвентаря
       - name: Generate inventory from Terraform
         run: |
-          mkdir -p ansible/inventory
           chmod +x ansible/generate_inventory.sh
           ./ansible/generate_inventory.sh
 
@@ -57,7 +55,6 @@ jobs:
       - name: Run Ansible playbook
         run: |
           ansible-playbook \
-            -i ansible/inventory/hosts.yml \
             ansible/site.yml \
             --vault-password-file=<(echo "$ANSIBLE_VAULT_PASSWORD")
         env:

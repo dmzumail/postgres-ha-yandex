@@ -1,10 +1,16 @@
 #!/bin/bash
 set -e
 
-# Переходим в папку terraform
-cd "$(dirname "$0")/../terraform"
+# Определяем корневую директорию проекта
+ROOT_DIR="$(dirname "$(realpath "$0")")/.."
 
-# Генерируем inventory
+# Создаём папку inventory, если её нет
+mkdir -p "$ROOT_DIR/ansible/inventory"
+
+# Переходим в папку terraform
+cd "$ROOT_DIR/terraform"
+
+# Генерируем hosts.yml из вывода Terraform
 terraform output -json instance_ips | jq -r '
 {
   all: {
@@ -23,4 +29,6 @@ terraform output -json instance_ips | jq -r '
       ansible_ssh_private_key_file: "~/.ssh/id_rsa"
     }
   }
-}' > ../ansible/inventory/hosts.yml
+}' > "$ROOT_DIR/ansible/inventory/hosts.yml"
+
+echo "Inventory generated at $ROOT_DIR/ansible/inventory/hosts.yml"
