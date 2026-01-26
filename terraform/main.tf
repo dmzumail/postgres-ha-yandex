@@ -102,10 +102,3 @@ resource "yandex_storage_bucket" "pg_backups" {
   bucket    = "pg-backups-${var.yc_folder_id}"
   folder_id = var.yc_folder_id
 }
-
-output "instance_ips" {
-  value = {
-    for i, instance in yandex_compute_instance.pg :
-    "pg-node-${i + 1}" => instance.network_interface.0.nat_ip_address
-  }
-}
