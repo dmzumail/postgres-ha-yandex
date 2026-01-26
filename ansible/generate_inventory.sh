@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
+# Переходим в папку terraform
 cd "$(dirname "$0")/../terraform"
 
+# Генерируем inventory
 terraform output -json instance_ips | jq -r '
 {
   all: {

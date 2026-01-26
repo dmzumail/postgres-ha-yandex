@@ -33,6 +33,7 @@ jobs:
       # Автоматическая генерация инвентаря
       - name: Generate inventory from Terraform
         run: |
+          mkdir -p ansible/inventory
           chmod +x ansible/generate_inventory.sh
           ./ansible/generate_inventory.sh
 
