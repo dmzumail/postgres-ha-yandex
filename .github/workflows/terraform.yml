@@ -55,6 +55,7 @@ jobs:
       - name: Run Ansible playbook
         run: |
           ansible-playbook \
+            -i ansible/inventory/hosts.yml \
             ansible/site.yml \
             --vault-password-file=<(echo "$ANSIBLE_VAULT_PASSWORD")
         env:
