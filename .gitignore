@@ -6,12 +6,12 @@ terraform/terraform.tfvars
 terraform/.terraform.lock.hcl
 
 # Ansible
-ansible/inventory/*.yml
-ansible/inventory/*.yaml
+ansible/inventory/
+!ansible/inventory/
 !ansible/inventory/example.yml
-ansible/inventory/hosts.yml 
+ansible/inventory/hosts.yml
 
-# Local
+# Local & editor
 *.log
 *~
 .DS_Store
