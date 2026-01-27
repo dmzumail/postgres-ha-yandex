@@ -52,10 +52,26 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Wait for SSH on all nodes
+        run: |
+          IPs=$(jq -r '.instance_ips | to_entries[] | .value' terraform.tfstate)
+          for ip in $IPs; do
+            echo "⏳ Waiting for SSH on $ip..."
+            timeout 120 bash -c 'until ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$ip echo OK >/dev/null 2>&1; do sleep 2; done' || {
+              echo "Timeout after 120s for $ip"
+              exit 1
+            }
+            echo "$ip ready"
+          done
+        working-directory: ./terraform
+
       - name: Run Ansible playbook
         run: |
           ansible-playbook \
             -i ansible/inventory/hosts.yml \
+            --private-key ~/.ssh/id_rsa \
+            --user ubuntu \
+            --ssh-extra-args "-o StrictHostKeyChecking=no -o ConnectTimeout=10" \
             ansible/site.yml \
             --vault-password-file=<(echo "$ANSIBLE_VAULT_PASSWORD")
         env:
