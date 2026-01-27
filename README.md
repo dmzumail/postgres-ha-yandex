@@ -1,2 +1,7 @@
-# postgres-ha-yandex
-Кластер PostgreSQL с высокой доступностью в Yandex Cloud на базе Patroni
+# PostgreSQL HA Cluster with Patroni + etcd on Yandex Cloud
+
+## Развёртывание (вручную)
+
+1. Установите зависимости:
+   ```bash
+   sudo apt install terraform ansible jq
