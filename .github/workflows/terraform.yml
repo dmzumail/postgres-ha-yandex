@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
@@ -56,13 +56,6 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-      # Отладка: попробуем подключиться к одной ноде напрямую
-      - name: Debug SSH connection to pg-node-1
-        run: |
-          IP=$(cd ./terraform && terraform output -json instance_ips | jq -r '.["pg-node-1"]')
-          echo "Trying to connect to pg-node-1 ($IP)..."
-          ssh -o ConnectTimeout=15 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -i ~/.ssh/id_rsa ubuntu@$IP 'echo "SSH OK"'
 
       - name: Run Ansible playbook
         run: |

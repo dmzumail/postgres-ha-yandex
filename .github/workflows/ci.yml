@@ -1,0 +1,33 @@
+name: CI - Validate Configuration
+
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init & Validate
+        run: |
+          cd terraform
+          terraform init
+          terraform validate
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Ansible
+        run: pip install ansible-core
+
+      - name: Ansible Syntax Check
+        run: |
+          cd ansible
+          ansible-playbook --syntax-check site.yml
