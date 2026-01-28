@@ -2,14 +2,16 @@ name: Deploy PostgreSQL HA Cluster
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  workflow_dispatch:  # позволяет запускать вручную из GitHub UI
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: [self-hosted, postgres-ha]
+    environment: production
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Terraform
@@ -20,6 +22,8 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform
+        env:
+          YC_TOKEN: ${{ secrets.YC_TOKEN }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
@@ -30,17 +34,17 @@ jobs:
           TF_VAR_yc_cloud_id: ${{ secrets.YC_CLOUD_ID }}
           TF_VAR_yc_folder_id: ${{ secrets.YC_FOLDER_ID }}
 
-      - name: Generate inventory from Terraform
+      - name: Generate Ansible inventory from Terraform
         run: |
           chmod +x ansible/generate_inventory.sh
           ./ansible/generate_inventory.sh
 
-      - name: Debug inventory
+      - name: Debug generated inventory
         run: |
           ls -la ansible/inventory/
           cat ansible/inventory/hosts.yml
 
-      - name: Setup Python
+      - name: Setup Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
@@ -51,11 +55,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq
 
-      - name: Set up SSH key
+      - name: Set up SSH private key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub  # для совместимости
 
       - name: Run Ansible playbook
         run: |
