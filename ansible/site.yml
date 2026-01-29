@@ -1,6 +1,6 @@
 ---
 - name: Настройка PostgreSQL HA кластера
-  hosts: postgres_ha
+  hosts: postgresql
   become: yes
   roles:
     - common
