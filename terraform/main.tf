@@ -54,6 +54,12 @@ resource "yandex_vpc_security_group" "pg-sg" {
 
   ingress {
     protocol       = "TCP"
+    port           = 2380
+    v4_cidr_blocks = ["10.0.1.0/24"]
+  }
+
+  ingress {
+    protocol       = "TCP"
     port           = 8008
     v4_cidr_blocks = ["10.0.1.0/24"]
   }
