@@ -17,12 +17,13 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y jq python3-pip yq
+          sudo apt install -y jq python3-pip
+          pip3 install --user yq
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Ansible and psycopg2
         run: |
           pip3 install --user ansible psycopg2-binary
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Terraform Init
         run: terraform init
