@@ -7,7 +7,7 @@ restapi:
   connect_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:8008
 
 etcd:
-  hosts: {% for host in groups['postgresql'] %}{{ hostvars[host]['ansible_host'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}
+  hosts: {% for host in groups['postgresql'] %}{{ hostvars[host]['internal_ip'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}
 
 bootstrap:
   dcs:
