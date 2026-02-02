@@ -1,10 +1,10 @@
 name: "{{ etcd_name }}"
 data-dir: /var/lib/etcd
-listen-peer-urls: http://0.0.0.0:2380
+listen-peer-urls: http://{{ ansible_default_ipv4.address }}:2380
 listen-client-urls: http://0.0.0.0:2379
-initial-advertise-peer-urls: http://{{ ansible_host }}:2380
+initial-advertise-peer-urls: http://{{ ansible_default_ipv4.address }}:2380
 advertise-client-urls: http://{{ ansible_host }}:2379
-initial-cluster: {{ groups['postgresql'] | map('extract', hostvars, 'etcd_name') | zip(groups['postgresql'] | map('extract', hostvars, 'ansible_host')) | map('join', '=http://') | map('regex_replace', '$', ':2380') | join(',') }}
+initial-cluster: {{ groups['postgresql'] | map('extract', hostvars, 'etcd_name') | zip(groups['postgresql'] | map('extract', hostvars, 'ansible_default_ipv4.address')) | map('join', '=http://') | map('regex_replace', '$', ':2380') | join(',') }}
 initial-cluster-token: pg-etcd-token
 initial-cluster-state: new
 heartbeat-interval: 100
