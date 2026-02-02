@@ -3,7 +3,7 @@ name: Deploy PostgreSQL HA Cluster
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # позволяет запускать вручную из GitHub UI
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y jq python3-pip
+          sudo apt install -y jq python3-pip yq
 
       - name: Install Ansible and psycopg2
         run: |
@@ -55,6 +55,22 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+
+      - name: Wait for SSH to be ready on all PostgreSQL nodes
+        run: |
+          # Read IPs from the generated inventory
+          PG1=$(yq '.postgresql.hosts."pg-node-1".ansible_host' ansible/inventory/hosts.yml)
+          PG2=$(yq '.postgresql.hosts."pg-node-2".ansible_host' ansible/inventory/hosts.yml)
+          PG3=$(yq '.postgresql.hosts."pg-node-3".ansible_host' ansible/inventory/hosts.yml)
+          
+          echo "Waiting for SSH on pg-node-1 ($PG1)..."
+          timeout 180 bash -c "until ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$PG1 'echo OK' 2>/dev/null; do sleep 5; done" || { echo "Timeout waiting for pg-node-1"; exit 1; }
+          
+          echo "Waiting for SSH on pg-node-2 ($PG2)..."
+          timeout 180 bash -c "until ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$PG2 'echo OK' 2>/dev/null; do sleep 5; done" || { echo "Timeout waiting for pg-node-2"; exit 1; }
+          
+          echo "Waiting for SSH on pg-node-3 ($PG3)..."
+          timeout 180 bash -c "until ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$PG3 'echo OK' 2>/dev/null; do sleep 5; done" || { echo "Timeout waiting for pg-node-3"; exit 1; }
 
       - name: Run Ansible playbook
         run: |
