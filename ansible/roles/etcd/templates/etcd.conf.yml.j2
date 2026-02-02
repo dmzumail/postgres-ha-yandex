@@ -4,7 +4,7 @@ listen-peer-urls: http://0.0.0.0:2380
 listen-client-urls: http://0.0.0.0:2379
 initial-advertise-peer-urls: http://{{ ansible_host }}:2380
 advertise-client-urls: http://{{ ansible_host }}:2379
-initial-cluster: {% for host in groups['postgresql'] %}{{ hostvars[host]['etcd_name'] }}=http://{{ hostvars[host]['ansible_host'] }}:2380{% if not loop.last %},{% endif %}{% endfor %}
+initial-cluster: {{ groups['postgresql'] | map('extract', hostvars, 'etcd_name') | zip(groups['postgresql'] | map('extract', hostvars, 'ansible_host')) | map('join', '=http://') | map('regex_replace', '$', ':2380') | join(',') }}
 initial-cluster-token: pg-etcd-token
 initial-cluster-state: new
 heartbeat-interval: 100
