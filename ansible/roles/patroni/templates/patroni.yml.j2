@@ -29,12 +29,12 @@ postgresql:
   connect_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:5432
   data_dir: /var/lib/postgresql/15/main
   bin_dir: /usr/lib/postgresql/15/bin
-  authentication:
-    replication:
-      username: replicator
-      password: rep-pass-123
-    superuser:
-      username: postgres
-      password: postgres-pass-123
+authentication:
+  replication:
+    username: replicator
+    password: "{{ postgresql_replication_password }}"
+  superuser:
+    username: postgres
+    password: "{{ postgresql_superuser_password }}"
   parameters:
     unix_socket_directories: '/var/run/postgresql'

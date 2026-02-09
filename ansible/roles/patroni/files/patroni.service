@@ -4,8 +4,8 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-User=patroni
-Group=patroni
+User=postgres
+Group=postgres
 ExecStart=/usr/local/bin/patroni /etc/patroni/patroni.yml
 KillMode=process
 TimeoutSec=30
