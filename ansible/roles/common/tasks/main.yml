@@ -1,10 +1,23 @@
 ---
-- name: Обновить кэш пакетов
+- name: Обновляем кэш пакеты
   apt:
     update_cache: yes
     cache_valid_time: 3600
 
-- name: Установить базовые пакеты
+- name: Дожидаемся освобождения dpkg lock
+  shell: |
+    timeout 300 sh -c '
+      while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+            fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
+        sleep 5
+      done
+    '
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when: ansible_os_family == "Debian"
+
+- name: Устанавливаем базовые пакеты
   apt:
     name:
       - curl
@@ -15,11 +28,11 @@
       - python3-pip
     state: present
 
-- name: Отключить swap
+- name: Отключаем swap
   shell: swapoff -a
   when: ansible_swaptotal_mb > 0
 
-- name: Убедиться, что swap отключён навсегда
+- name: Убеждаемся, что swap отключён навсегда
   lineinfile:
     path: /etc/fstab
     regexp: '^\s*[^#].*swap'
