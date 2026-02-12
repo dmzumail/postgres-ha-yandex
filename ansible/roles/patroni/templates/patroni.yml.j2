@@ -1,13 +1,14 @@
+---
 scope: pg-cluster
 namespace: /service/
-name: {{ inventory_hostname }}
+name: "{{ inventory_hostname }}"
 
 restapi:
   listen: 0.0.0.0:8008
-  connect_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:8008
+  connect_address: "{{ hostvars[inventory_hostname]['ansible_host'] }}:8008"
 
 etcd3:
-  hosts: {% for host in groups['postgresql'] %}{{ hostvars[host]['internal_ip'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}
+  hosts: "{% for host in groups['postgresql'] %}{{ hostvars[host]['internal_ip'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
 
 bootstrap:
   dcs:
@@ -26,15 +27,15 @@ bootstrap:
 
 postgresql:
   listen: 0.0.0.0:5432
-  connect_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:5432
+  connect_address: "{{ hostvars[inventory_hostname]['ansible_host'] }}:5432"
   data_dir: /var/lib/postgresql/15/main
   bin_dir: /usr/lib/postgresql/15/bin
-authentication:
-  replication:
-    username: replicator
-    password: "{{ postgresql_replication_password }}"
-  superuser:
-    username: postgres
-    password: "{{ postgresql_superuser_password }}"
+  authentication:
+    replication:
+      username: replicator
+      password: "{{ postgresql_replication_password }}"
+    superuser:
+      username: postgres
+      password: "{{ postgresql_superuser_password }}"
   parameters:
     unix_socket_directories: '/var/run/postgresql'
