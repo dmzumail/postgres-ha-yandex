@@ -5,80 +5,48 @@
 ![Ansible](https://img.shields.io/badge/Ansible-%3E%3D2.14-red)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
 
-> 🚀 Production-ready решение для развёртывания отказоустойчивого кластера PostgreSQL в Yandex Cloud с автоматическим failover, мониторингом и резервным копированием.
-
----
-
-## 📋 Оглавление
-
-- [Архитектура](#-архитектура)
-- [Технологический стек](#-технологический-стек)
-- [Требования](#-требования)
-- [Быстрый старт](#-быстрый-старт)
-- [Конфигурация](#-конфигурация)
-- [CI/CD](#-cicd)
-- [Безопасность](#-безопасность)
-- [Мониторинг и бэкапы](#-мониторинг-и-бэкапы)
-- [Troubleshooting](#-troubleshooting)
-- [Вклад в проект](#-вклад-в-проект)
-
----
-
-## 🏗️ Архитектура
-┌─────────────────────────────────────────┐
-│ Yandex Cloud (ru-central1) │
-├─────────────────────────────────────────┤
-│ ┌─────────┐ ┌─────────┐ ┌─────────┐ │
-│ │ pg-node-1│ │ pg-node-2│ │ pg-node-3│ │
-│ │ │ │ │ │ │ │
-│ │ Patroni │ │ Patroni │ │ Patroni │ │
-│ │ etcd │ │ etcd │ │ etcd │ │
-│ │ PostgreSQL │ PostgreSQL │ PostgreSQL │ │
-│ └────┬────┘ └────┬────┘ └────┬────┘ │
-│ │ │ │ │
-│ ┌────▼────────────▼────────────▼────┐ │
-│ │ etcd Cluster (DCS) │ │
-│ │ Консенсус для выбора лидера │ │
-│ └───────────────────────────────────┘ │
-│ │
-│ ┌────────────────────────────────┐ │
-│ │ Yandex Object Storage (S3) │ │
-│ │ WAL-G / pgBackRest бэкапы │ │
-│ └────────────────────────────────┘ │
-└────────────────────────────────────────┘
-
-
-### Компоненты:
-
-| Компонент | Назначение | Порт |
-|-----------|------------|------|
-| **PostgreSQL 15** | Основная СУБД | 5432 |
-| **Patroni** | Оркестрация кластера, автоматический failover | 8008 (API) |
-| **etcd** | Distributed Configuration Store (DCS) | 2379 (client), 2380 (peer) |
-| **Ansible** | Автоматизация настройки и управления | — |
-| **Terraform** | Provisioning инфраструктуры в YC | — |
-| **WAL-G/pgBackRest** | Резервное копирование в Object Storage | — |
+> 🚀 Production-ready решение для развёртывания отказоустойчивого кластера PostgreSQL в Yandex Cloud (Patroni + etcd) с автоматическим failover и бэкапами в S3.
 
 ---
 
 ## 💻 Технологический стек
 
-- **IaC**: Terraform ≥ 1.6.0 + Yandex Cloud Provider ≥ 0.80
-- **Config Management**: Ansible ≥ 2.14 + Jinja2
+- **IaC**: Terraform + Yandex Cloud Provider
+- **Config Management**: Ansible
 - **OS**: Ubuntu 22.04 LTS
-- **HA**: Patroni + etcd
-- **Backups**: WAL-G или pgBackRest → Yandex Object Storage
-- **CI/CD**: GitHub Actions (валидация Terraform и Ansible)
-- **Secrets**: Ansible Vault + Yandex IAM-токены
+- **HA**: Patroni + etcd (DCS)
+- **Backups**: WAL-G → Yandex Object Storage
+- **CI/CD**: GitHub Actions
 
 ---
 
 ## 📦 Требования
 
-### Локально:
-```bash
-# Обязательные утилиты
-sudo apt install terraform ansible jq python3-pip sshpass -y
+- **Локально**: `terraform`, `ansible`, `jq`, `python3-pip`
+- **Yandex Cloud**: IAM-токен, права на создание VPC/VM, SSH-ключи
+- **Python**: `pip3 install 'patroni[etcd]' psycopg2-binary yandexcloud`
 
-# Python-зависимости для Ansible
-pip3 install 'patroni[etcd]' psycopg2-binary yandexcloud
+---
+
+## ⚙️ Конфигурация
+
+### Структура проекта
+
+<img width="511" height="171" alt="{25B1586D-3263-44C3-9034-377B6333F66E}" src="https://github.com/user-attachments/assets/fce63658-ef05-498c-9d7c-0d728ad88126" />
+
+
+
+
+## 🔐 Безопасность и Бэкапы
+
+- **Доступ**: SSH по ключам, порты БД закрыты Security Groups (только внутри подсети).
+- **Секреты**: Хранятся в Ansible Vault.
+- **Бэкапы**: WAL-G архивирует WAL в Yandex Object Storage (S3).
+
+---
+
+## 📄 Лицензия
+
+MIT
+
+🔗 **Документация**: [Patroni](https://patroni.readthedocs.io/) | [Yandex Terraform](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs)
